@@ -9,5 +9,3 @@ standalone-ceph-mon:
   # Weight that will be used to sort out the
   # roles on the Fuel web UI
   weight: 1000
-  concflicts:
-    - controller
