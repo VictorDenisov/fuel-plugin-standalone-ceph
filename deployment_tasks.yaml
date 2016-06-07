@@ -108,7 +108,7 @@
     timeout: 3600
 
 - id: standalone-ceph-rados-pki
-  type: puppet
+  type: skipped
   groups: [primary-standalone-ceph-mon,standalone-ceph-mon]
   required_for: [deploy_end]
   requires: [standalone-ceph-radosgw]
