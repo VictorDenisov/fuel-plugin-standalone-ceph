@@ -35,6 +35,12 @@
 - id: swift-keystone
   type: skipped
 
+- id: primary-ceph-mon
+  type: skipped
+
+- id: primary-ceph-radosgw
+  type: skipped
+
 #- id: ceph_create_pools
 #  type: skipped
 
