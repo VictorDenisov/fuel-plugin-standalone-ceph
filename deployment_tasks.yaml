@@ -7,7 +7,7 @@
   role: [primary-standalone-ceph-mon]
   requires: [controller]
   required_for: [ceph-osd]
-  tasks: [enable_rados-for-standalone-ceph,standalone-ceph-radosgw,task-standalone-ceph-mon,hiera-override-for-standalone-ceph,firewall,hiera,tools,netconfig,connectivity_tests,globals,fuel_pkgs,logging,hosts,apache,openstack-haproxy,virtual_ips,ssl-add-trust-chain]
+  tasks: [task-standalone-ceph-mon,hiera-override-for-standalone-ceph,firewall,hiera,tools,netconfig,connectivity_tests,globals,fuel_pkgs,logging,hosts,apache,openstack-haproxy,virtual_ips,ssl-add-trust-chain]
   parameters:
     strategy:
       type: one_by_one
@@ -17,7 +17,7 @@
   role: [standalone-ceph-mon]
   requires: [primary-standalone-ceph-mon]
   required_for: [deploy_end]
-  tasks: [enable_rados-for-standalone-ceph,standalone-ceph-radosgw,task-standalone-ceph-mon,hiera-override-for-standalone-ceph,firewall,hiera,tools,netconfig,connectivity_tests,globals,fuel_pkgs,logging,hosts,apache,openstack-haproxy,virtual_ips,ssl-add-trust-chain]
+  tasks: [task-standalone-ceph-mon,hiera-override-for-standalone-ceph,firewall,hiera,tools,netconfig,connectivity_tests,globals,fuel_pkgs,logging,hosts,apache,openstack-haproxy,virtual_ips,ssl-add-trust-chain]
   parameters:
     strategy:
       type: parallel
@@ -93,49 +93,6 @@
     puppet_modules: 'modules:/etc/puppet/modules'
     timeout: 3600
 
-- id: openstack-haproxy-radosgw-for-standalone-ceph
-  type: puppet
-  groups: [primary-standalone-ceph-mon,standalone-ceph-mon]
-  required_for: [openstack-haproxy, deploy_end]
-  requires: [deploy_start, cluster-haproxy-for-standalone-ceph, hiera-override-for-standalone-ceph]
-  parameters:
-    puppet_manifest: 'openstack-haproxy-radosgw.pp'
-    puppet_modules: 'modules:/etc/puppet/modules'
-    timeout: 300
-
-- id: standalone-ceph-radosgw
-  type: puppet
-  groups: [primary-standalone-ceph-mon,standalone-ceph-mon]
-  required_for: [deploy_end]
-  requires: [apache,task-standalone-ceph-mon]
-  parameters:
-    puppet_manifest: 'radosgw.pp'
-    puppet_modules: 'modules:/etc/puppet/modules'
-    timeout: 3600
-
-- id: standalone-ceph-rados-pki
-  type: skipped
-  groups: [primary-standalone-ceph-mon,standalone-ceph-mon]
-  required_for: [deploy_end]
-  requires: [standalone-ceph-radosgw]
-  condition: "settings:token-provider.token_provider.value == 'pki' or settings:token-provider.token_provider.value == 'pkiz'"
-  parameters:
-    puppet_manifest: 'rados-pki.pp'
-    puppet_modules: 'modules:/etc/puppet/modules'
-    timeout: 3600
-
-- id: enable_rados-for-standalone-ceph
-  type: puppet
-  groups: [primary-standalone-ceph-mon,standalone-ceph-mon]
-  condition: "settings:storage.objects_ceph.value == true"
-  requires: [standalone-ceph-rados-pki]
-  required_for: [deploy_end]
-  parameters:
-    puppet_manifest: /etc/puppet/modules/osnailyfacter/modular/ceph/enable_rados.pp
-    puppet_modules: /etc/puppet/modules
-    timeout: 180
-    cwd: /
-
 #POSTDEPLOYMENT
 #- id: ceph_create_pools-for-standalone-ceph
 #  type: puppet
@@ -162,8 +119,8 @@
 - id: ceph_client
   type: puppet
   role: [primary-controller,controller]
-  requires: [post_deployment_start]
-  required_for: [ceph_create_pools,ceilometer-radosgw-user,post_deployment_end]
+  requires: [post_deployment_end]
+  required_for: [ceph_create_pools,post_deployment_end]
   condition: "settings:storage.objects_ceph.value == true or settings:storage.images_ceph.value == true or settings:storage.volumes_ceph.value == true or settings:storage.ephemeral_ceph.value == true"
   parameters:
     puppet_manifest: 'ceph_client.pp'
