@@ -87,10 +87,6 @@
   type: skipped
   version: 2.1.0
 
-- id: top-role-ceph-osd
-  type: skipped
-  version: 2.1.0
-
 #- id: openstack-haproxy-radosgw
 #  type: skipped
 #
@@ -98,18 +94,6 @@
 #  type: skipped
 
 - id: ceph-compute
-  type: skipped
-  version: 2.1.0
-
-- id: updatedb
-  type: skipped
-  version: 2.1.0
-
-- id: ceph_create_pools
-  type: skipped
-  version: 2.1.0
-
-- id: ceph_ready_check
   type: skipped
   version: 2.1.0
 
@@ -146,9 +130,6 @@
   parameters:
     puppet_manifest: /etc/puppet/modules/osnailyfacter/modular/ceph/mon.pp
     puppet_modules: /etc/puppet/modules
-#    puppet_manifest: 'mon.pp'
-    #puppet_modules: 'modules:/etc/puppet/modules'
-
     timeout: 3600
 
 - id: primary-ceph-mon
@@ -212,17 +193,17 @@
 #    cmd: ruby /etc/puppet/modules/osnailyfacter/modular/ceph/ceph_ready_check.rb
 #    timeout: 1800
 
-#- id: ceph_client
-#  type: puppet
-#  version: 2.1.0
-#  role: [primary-controller,controller]
-#  requires: [post_deployment_end]
-#  required_for: [ceph_create_pools,post_deployment_end]
-#  condition: "settings:storage.objects_ceph.value == true or settings:storage.images_ceph.value == true or settings:storage.volumes_ceph.value == true or settings:storage.ephemeral_ceph.value == true"
-#  parameters:
-#    puppet_manifest: 'ceph_client.pp'
-#    puppet_modules: 'modules:/etc/puppet/modules'
-#    timeout: 3600
+- id: ceph_client
+  type: puppet
+  version: 2.1.0
+  role: [primary-controller,controller]
+  requires: [post_deployment_start]
+  required_for: [ceph_create_pools,post_deployment_end]
+  condition: "settings:storage.objects_ceph.value == true or settings:storage.images_ceph.value == true or settings:storage.volumes_ceph.value == true or settings:storage.ephemeral_ceph.value == true"
+  parameters:
+    puppet_manifest: 'ceph_client.pp'
+    puppet_modules: 'modules:/etc/puppet/modules'
+    timeout: 3600
 
 #- id: dns-client-for-standalone-ceph
 #  type: puppet
@@ -259,3 +240,4 @@
 #    puppet_modules: /etc/puppet/modules
 #    timeout: 3600
 #    cwd: /
+
